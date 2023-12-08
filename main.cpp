@@ -5,8 +5,8 @@
 int main() {
     std::string imgPath1, imgPath2;
     cv::Mat prev, current, prevGray, currentGray;
-    imgPath1 = "/Users/simmons/Downloads/kitti-01/000155.png";
-    imgPath2 = "/Users/simmons/Downloads/kitti-01/000156.png";
+    imgPath1 = "/home/rushmian/Datasets/Kitti/data_odometry_color/dataset/sequences/01/image_2/000155.png";
+    imgPath2 = "/home/rushmian/Datasets/Kitti/data_odometry_color/dataset/sequences/01/image_2/000156.png";
     prev = cv::imread(imgPath1, cv::ImreadModes::IMREAD_UNCHANGED);
     current = cv::imread(imgPath2, cv::ImreadModes::IMREAD_UNCHANGED);
     if(prev.channels() != 1){
