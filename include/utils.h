@@ -209,9 +209,10 @@ void ClassifyBasedOnXYAndRemovePoint(const double &a, const double &b,const std:
     std::vector<std::vector<int>> newGroups;
     std::vector<std::vector<double>> length;
     std::vector<std::vector<double>> angle;
-    length.reserve(totalClasses);
-    newGroups.reserve(totalClasses);
-    angle.reserve(totalClasses);
+    length.resize(totalClasses);
+    newGroups.resize(totalClasses);
+    angle.resize(totalClasses);
+    std::cout<<"run here 1"<<std::endl;
     double x_cor = 0.0;
 //    for(int i=0; i<totalClasses; ++i){
 //        length[i].;
@@ -238,10 +239,11 @@ void ClassifyBasedOnXYAndRemovePoint(const double &a, const double &b,const std:
                 std::exit(-1);
             }
             angle[group].push_back(_);
-            count_n[group] += 1;
+//            count_n[group] += 1;
             x_cor += featurePointPrev[i].x;
         }
     }
+    std::cout<<"run here 2"<<std::endl;
     for(int i=0; i<angle[3].size(); i++){
         std::cout<<"group 3 4 i: "<<i<<" angle: "<<angle[3][i]<<std::endl;
     }
