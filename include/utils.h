@@ -230,6 +230,7 @@ void ClassifyBasedOnXYAndRemovePoint(const double &a, const double &b,const std:
             int _col = featurePointPrev[i].x / nw;
             int group = _row * nb + _col;
 //            std::cout<<"run here 3"<<std::endl;
+            std::cout<<"run this too: "<<group<<std::endl;
             newGroups[group].push_back(originalIndex);
             length[group].push_back(cv::norm(featurePointCurrent[originalIndex] - featurePointPrev[originalIndex]));
             std::cout<<"group : "<<group<<std::endl;
