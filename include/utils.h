@@ -243,8 +243,10 @@ void ClassifyBasedOnXYAndRemovePoint(const double &a, const double &b,const std:
             }
             angle[group].push_back(_);
             std::cout<<"it push_back successfully"<<std::endl;
+            std::cout<<_<<std::endl;
 //            count_n[group] += 1;
             x_cor += featurePointPrev[i].x;
+            std::cout<<"run here !!!!"<<std::endl;
         }
     }
     std::cout<<"run here 2"<<std::endl;
