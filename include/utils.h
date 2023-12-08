@@ -224,6 +224,7 @@ void ClassifyBasedOnXYAndRemovePoint(const double &a, const double &b,const std:
     for(int i=0; i<IndexOfOneGroup.size(); ++i){
         // it's good points
         int originalIndex = IndexOfOneGroup[i];
+        std::cout<<"run this too"<<std::endl;
         if(status[originalIndex]){
             int _row = featurePointPrev[i].y / mw;
             int _col = featurePointPrev[i].x / nw;
