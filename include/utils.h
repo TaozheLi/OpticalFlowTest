@@ -209,9 +209,9 @@ void ClassifyBasedOnXYAndRemovePoint(const double &a, const double &b,const std:
     std::vector<std::vector<int>> newGroups;
     std::vector<std::vector<double>> length;
     std::vector<std::vector<double>> angle;
-    length.reserve(totalClasses);
-    newGroups.reserve(totalClasses);
-    angle.reserve(totalClasses);
+    length.resize(totalClasses);
+    newGroups.resize(totalClasses);
+    angle.resize(totalClasses);
     double x_cor = 0.0;
     for(int i=0; i<totalClasses; ++i){
         length[i].reserve(10000);

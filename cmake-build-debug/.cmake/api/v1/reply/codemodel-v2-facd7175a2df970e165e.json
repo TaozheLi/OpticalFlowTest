@@ -9,7 +9,7 @@
 					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
 					"minimumCMakeVersion" : 
 					{
-						"string" : "3.26"
+						"string" : "3.10"
 					},
 					"projectIndex" : 0,
 					"source" : ".",
@@ -39,7 +39,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "OpticalFlowTest::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-OpticalFlowTest-Debug-aa54a475c8162f1673db.json",
+					"jsonFile" : "target-OpticalFlowTest-Debug-e104e5a44312ac8bb372.json",
 					"name" : "OpticalFlowTest",
 					"projectIndex" : 0
 				}
