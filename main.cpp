@@ -9,6 +9,7 @@ int main() {
     imgPath2 = "/home/rushmian/Datasets/Kitti/data_odometry_color/dataset/sequences/01/image_2/000156.png";
     prev = cv::imread(imgPath1, cv::ImreadModes::IMREAD_UNCHANGED);
     current = cv::imread(imgPath2, cv::ImreadModes::IMREAD_UNCHANGED);
+    std::cout<<"image size: "<<current.size<<std::endl;
     if(prev.channels() != 1){
         cv::cvtColor(prev, prevGray, cv::COLOR_BGR2GRAY);
     }
