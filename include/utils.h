@@ -213,12 +213,12 @@ void ClassifyBasedOnXYAndRemovePoint(const double &a, const double &b,const std:
     newGroups.resize(totalClasses);
     angle.resize(totalClasses);
     double x_cor = 0.0;
-    for(int i=0; i<totalClasses; ++i){
-        length[i].reserve(10000);
-        newGroups[i].reserve(10000);
-        angle[i].reserve(10000);
-
-    }
+//    for(int i=0; i<totalClasses; ++i){
+//        length[i].;
+//        newGroups[i].reserve(10000);
+//        angle[i].reserve(10000);
+//
+//    }
     std::vector<int> count_n(30, 0);
     for(int i=0; i<IndexOfOneGroup.size(); ++i){
         // it's good points
