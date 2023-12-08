@@ -194,8 +194,8 @@ float ComputeAngleAtan2(const cv::Point2f &p1, const cv::Point2f &p2){
 
 void ClassifyBasedOnXYAndRemovePoint(const double &a, const double &b,const std::vector<int> &IndexOfOneGroup, const std::vector<cv::Point2f> &featurePointPrev,
                                      const std::vector<cv::Point2f> &featurePointCurrent, std::vector<bool> &status, const std::vector<double> &globalOrientation, const bool & useGlobalInformation = false){
-    const int width = 1232;
-    const int height = 371;
+    const int width = 1231;
+    const int height = 376;
     const int minimumNumber = 5;
     const int nb = 10;
     const int mb = 3;
