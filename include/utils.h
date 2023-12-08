@@ -237,7 +237,7 @@ void ClassifyBasedOnXYAndRemovePoint(const double &a, const double &b,const std:
                 std::cout<<featurePointPrev[originalIndex]<<" "<<featurePointCurrent[originalIndex]<<std::endl;
                 std::exit(-1);
             }
-            angle[group][count_n[group]] = _;
+            angle[group].push_back(_);
             count_n[group] += 1;
             x_cor += featurePointPrev[i].x;
         }
