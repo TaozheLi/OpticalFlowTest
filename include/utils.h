@@ -85,22 +85,22 @@ std::vector<int> classifyBasedOnDepth(const int & classes, const std::vector<dou
 
 
 void ClassifyBasedOnXY(const int &classes, const double &a, const double &b,
-                                   const std::vector<int> & groups, const std::vector<cv::Point2f> &featurePointsPrev, const std::vector<cv::Point2f> &featurePointsCurrent, std::vector<bool> &status){
+                                   const std::vector<int> & groups, const std::vector<cv::Point2f> &featurePointsPrev, const std::vector<cv::Point2f> &featurePointsCurrent, std::vector<bool> &status, const int &parts, const bool& useGlobalInformation){
     void ClassifyBasedOnXYAndRemovePoint(const double &a, const double &b,const std::vector<int> &IndexOfOneGroup, const std::vector<cv::Point2f> &featurePointPrev,
-                                         const std::vector<cv::Point2f> &featurePointCurrent, std::vector<bool> &status, const std::vector<double> &orientation, const bool & useGlobalInformation);
-    std::vector<double> ComputingGlobalOrientation(const std::vector<bool> & status, const std::vector<cv::Point2f> &featurePointsPrev, const std::vector<cv::Point2f> &featurePointsCurrent);
+                                         const std::vector<cv::Point2f> &featurePointCurrent, std::vector<bool> &status, const std::vector<double> &orientation, const int &parts, const bool & useGlobalInformation);
+    std::vector<double> ComputingGlobalOrientation(const int &parts, const std::vector<bool> & status, const std::vector<cv::Point2f> &featurePointsPrev, const std::vector<cv::Point2f> &featurePointsCurrent);
     std::vector<std::vector<int>> ClassifyThroughDepth;
     ClassifyThroughDepth.resize(classes);
     for(int i=0; i<groups.size(); ++i){
         ClassifyThroughDepth[groups[i]].push_back(i);
     }
 
-    std::vector<double> globalOrientation = ComputingGlobalOrientation(status, featurePointsPrev, featurePointsCurrent);
+    std::vector<double> globalOrientation = ComputingGlobalOrientation(parts, status, featurePointsPrev, featurePointsCurrent);
 
     for(int i=0; i<ClassifyThroughDepth.size(); ++i){
         if(ClassifyThroughDepth[i].empty()) continue;
         std::cout<<"group :"<<i<<" size: "<<ClassifyThroughDepth[i].size()<<std::endl;
-        ClassifyBasedOnXYAndRemovePoint(a, b, ClassifyThroughDepth[i], featurePointsPrev, featurePointsCurrent, status, globalOrientation, true);
+        ClassifyBasedOnXYAndRemovePoint(a, b, ClassifyThroughDepth[i], featurePointsPrev, featurePointsCurrent, status, globalOrientation, parts, useGlobalInformation);
     }
 
 }
@@ -113,18 +113,37 @@ bool RemovedConditionOnlyLength(const double &opticalFlowLength, const double & 
     }
 }
 
-bool RemovedConditionOnlyOrientation(const double & theta, const double &mainTheta) {
-    double theta_threshold = 30.0;
-    if(abs(theta - mainTheta) > theta_threshold ) return true;
-    else
-        return false;
+bool RemovedConditionOnlyOrientation(const double &a, const double & b, const double & theta, const double &meanTheta, const double & stdTheta, const bool &case2) {
+    if(!case2) {
+        double theta_threshold = 30.0;
+        if (abs(theta - meanTheta) > theta_threshold) return true;
+        else
+            return false;
+    }
+    else{
+        double upperBound = meanTheta + a * stdTheta;
+        double lowerBound = meanTheta - b * stdTheta;
+        if(theta < lowerBound || theta > upperBound){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 }
 
 bool RemovedCondition(const double &opticalFlowLength, const double & mean, const double & std, const double & a, const double &b,
-                      const double & theta, const double &mainTheta, const double &globalOrientation) {
-    double alpha = 0.0;
-    double beta = 1 - alpha;
-    if(RemovedConditionOnlyLength(opticalFlowLength, mean, std, a, b) || RemovedConditionOnlyOrientation(theta, alpha * mainTheta + beta * globalOrientation))
+                      const double & theta, const double &meanTheta, const double &stdTheta, const double &globalOrientation, const bool & useGlobalInformation) {
+    double alpha;
+    double beta;
+    if(useGlobalInformation){
+        alpha = 0.3;
+    }
+    else{
+        alpha = 0;
+    }
+    beta = 1 - alpha;
+    if(RemovedConditionOnlyLength(opticalFlowLength, mean, std, a, b) || RemovedConditionOnlyOrientation(a, b, theta, alpha * meanTheta + beta * globalOrientation, stdTheta, false))
         return true;
     else
         return false;
@@ -134,10 +153,9 @@ double ComputeAngle(const cv::Point2f & pPrev, const cv::Point2f & pCurrent){
     return atan2((pCurrent.y - pPrev.y),  (pCurrent.x - pPrev.x) ) * 180.0 / M_PI;
 }
 
-std::vector<double> ComputingGlobalOrientation(const std::vector<bool> & status, const std::vector<cv::Point2f> &featurePointsPrev,
+std::vector<double> ComputingGlobalOrientation(const int &parts, const std::vector<bool> & status, const std::vector<cv::Point2f> &featurePointsPrev,
                                 const std::vector<cv::Point2f> &featurePointsCurrent){
     const int width = 1232;
-    const int parts = 3;
     double segment = double(width+1) / double(parts);
     std::vector<double> globalOrientation(parts, 0.0);
     std::vector<double> count(parts, 0.0);
@@ -193,7 +211,7 @@ float ComputeAngleAtan2(const cv::Point2f &p1, const cv::Point2f &p2){
 }
 
 void ClassifyBasedOnXYAndRemovePoint(const double &a, const double &b,const std::vector<int> &IndexOfOneGroup, const std::vector<cv::Point2f> &featurePointPrev,
-                                     const std::vector<cv::Point2f> &featurePointCurrent, std::vector<bool> &status, const std::vector<double> &globalOrientation, const bool & useGlobalInformation = false){
+                                     const std::vector<cv::Point2f> &featurePointCurrent, std::vector<bool> &status, const std::vector<double> &globalOrientation, const int & parts, const bool & useGlobalInformation = false){
     const int width = 1231;
     const int height = 376;
     const int minimumNumber = 5;
@@ -202,7 +220,7 @@ void ClassifyBasedOnXYAndRemovePoint(const double &a, const double &b,const std:
     const int totalClasses = nb * mb;
     const int mw = height / mb;
     const int nw = width / nb;
-    const int parts = 3; int type;
+    int type;
     if(IndexOfOneGroup.size() <= 5) return;
     std::cout<<"start to based on x and y"<<std::endl;
     // if number of points is too small, don't remove points
@@ -214,26 +232,19 @@ void ClassifyBasedOnXYAndRemovePoint(const double &a, const double &b,const std:
     angle.resize(totalClasses);
     std::cout<<"run here 1"<<std::endl;
     double x_cor = 0.0;
-//    for(int i=0; i<totalClasses; ++i){
-//        length[i].;
-//        newGroups[i].reserve(10000);
-//        angle[i].reserve(10000);
-//
-//    }
     std::vector<int> count_n(30, 0);
     for(int i=0; i<IndexOfOneGroup.size(); ++i){
         // it's good points
         int originalIndex = IndexOfOneGroup[i];
-        std::cout<<"run this too"<<std::endl;
         if(status[originalIndex]){
             int _row = featurePointPrev[i].y / mw;
             int _col = featurePointPrev[i].x / nw;
             int group = _row * nb + _col;
 //            std::cout<<"run here 3"<<std::endl;
-            std::cout<<"run this too: "<<group<<std::endl;
+//            std::cout<<"run this too: "<<group<<std::endl;
             newGroups[group].push_back(originalIndex);
             length[group].push_back(cv::norm(featurePointCurrent[originalIndex] - featurePointPrev[originalIndex]));
-            std::cout<<"group : "<<group<<std::endl;
+//            std::cout<<"group : "<<group<<std::endl;
 //            std::cout<<"run here 4"<<std::endl;
 //            if(group == 3){
 //                std::cout<<"i: "<<ComputeAngle(featurePointPrev[originalIndex], featurePointCurrent[originalIndex])<<std::endl;
@@ -245,16 +256,16 @@ void ClassifyBasedOnXYAndRemovePoint(const double &a, const double &b,const std:
             }
             angle[group].push_back(_);
             std::cout<<"it push_back successfully"<<std::endl;
-            std::cout<<_<<std::endl;
+//            std::cout<<_<<std::endl;
 //            count_n[group] += 1;
             x_cor += featurePointPrev[i].x;
             std::cout<<"run here !!!!"<<std::endl;
         }
     }
-    std::cout<<"run here 2"<<std::endl;
-    for(int i=0; i<angle[3].size(); i++){
-        std::cout<<"group 3 4 i: "<<i<<" angle: "<<angle[3][i]<<std::endl;
-    }
+//    std::cout<<"run here 2"<<std::endl;
+//    for(int i=0; i<angle[3].size(); i++){
+//        std::cout<<"group 3 4 i: "<<i<<" angle: "<<angle[3][i]<<std::endl;
+//    }
     x_cor = x_cor / double(IndexOfOneGroup.size());
     for(int i=0; i<parts; ++i){
         if(x_cor > (i+1) * double(width + 1) / double(parts)) continue;
@@ -262,23 +273,23 @@ void ClassifyBasedOnXYAndRemovePoint(const double &a, const double &b,const std:
         break;
     }
     // check
-    for(int i=0; i<newGroups.size(); ++i){
-        if(newGroups[i].empty()) continue;
+//    for(int i=0; i<newGroups.size(); ++i){
+//        if(newGroups[i].empty()) continue;
 //        std::cout<<"xy group: "<<i<<" size: "<<newGroups[i].size()<<std::endl;
-    }
+//    }
     // check it again
-    for(int i=0; i<angle[3].size(); i++){
-        std::cout<<"group 3 i: "<<i<<" angle: "<<angle[3][i]<<std::endl;
-    }
+//    for(int i=0; i<angle[3].size(); i++){
+//        std::cout<<"group 3 i: "<<i<<" angle: "<<angle[3][i]<<std::endl;
+//    }
     // converse
-    double threshRatio = 0.5;
+    double threshRatio = 0.7;
     int count = 0;
     for(int i=0; i<angle.size(); ++i) {
         if (angle[i].empty()) continue;
-        std::cout<<"not empty group: "<<i<<std::endl;
+//        std::cout<<"not empty group: "<<i<<std::endl;
         if (Converse(angle[i], threshRatio)) count+=1;
     }
-    std::cout<<"there are total "<<count<<" conversed group"<<std::endl;
+//    std::cout<<"there are total "<<count<<" conversed group"<<std::endl;
     for(int i=0; i<totalClasses; ++i){
         // no element in these group
         if(newGroups[i].empty()) continue;
@@ -291,11 +302,10 @@ void ClassifyBasedOnXYAndRemovePoint(const double &a, const double &b,const std:
         std::cout<<" mean_angle: "<<avg_angle<<std::endl;
         for(int each_idx=0; each_idx < newGroups[i].size(); ++each_idx){
             // detect angle rangle
-
             double optflow = length[i][each_idx];
             double theta = angle[i][each_idx];
-            std::cout<<"optflow: "<<optflow<<" theta: "<<theta<<std::endl;
-            if(RemovedCondition(optflow, avg_optflow, std_optflow, a, b, theta, avg_angle, globalOrientation[type])){
+//            std::cout<<"optflow: "<<optflow<<" theta: "<<theta<<std::endl;
+            if(RemovedCondition(optflow, avg_optflow, std_optflow, a, b, theta, avg_angle, std_angle, globalOrientation[type], useGlobalInformation)){
                 int originalIndex = newGroups[i][each_idx];
                 status[originalIndex] = false;
             }
