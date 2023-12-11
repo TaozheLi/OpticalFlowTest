@@ -11,8 +11,7 @@ set(CMAKE_CXX_COMPILER_ID "GNU")
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
   ".././include"
-  "/home/rushmian/vnav_ws/devel/include"
-  "/home/rushmian/vnav_ws/devel/include/opencv"
+  "/usr/local/include/opencv4"
   )
 
 # Targets to which this target links.

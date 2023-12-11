@@ -6,5 +6,5 @@ CXX_FLAGS =   -std=gnu++17
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/rushmian/OpticalFlowTest/OpticalFlowTest/./include -isystem /home/rushmian/vnav_ws/devel/include -isystem /home/rushmian/vnav_ws/devel/include/opencv 
+CXX_INCLUDES = -I/home/rushmian/OpticalFlowTest/OpticalFlowTest/./include -isystem /usr/local/include/opencv4 
 

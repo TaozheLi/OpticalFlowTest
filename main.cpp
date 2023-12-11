@@ -2,13 +2,21 @@
 #include <opencv2/optflow.hpp>
 #include <opencv2/opencv.hpp>
 #include <OpticalFlow.h>
-int main() {
+int main(int argc, char ** argv) {
     std::string imgPath1, imgPath2;
     cv::Mat prev, current, prevGray, currentGray;
-    imgPath1 = "/home/rushmian/Datasets/Kitti/data_odometry_color/dataset/sequences/01/image_2/000155.png";
-    imgPath2 = "/home/rushmian/Datasets/Kitti/data_odometry_color/dataset/sequences/01/image_2/000156.png";
+    if(argc < 3){
+        std::cout<<"please prepare parameters in this way ./OpticalFlowTest -imgPath1 -imgPath2";
+        std::exit(-1);
+    }
+    imgPath1 = argv[1];
+    imgPath2 = argv[2];
     prev = cv::imread(imgPath1, cv::ImreadModes::IMREAD_UNCHANGED);
     current = cv::imread(imgPath2, cv::ImreadModes::IMREAD_UNCHANGED);
+    if(prev.empty() || current.empty()){
+        std::cout<<"read image failed, please check input image path"<<std::endl;
+        std::exit(-1);
+    }
     std::cout<<"image size: "<<current.size<<std::endl;
     if(prev.channels() != 1){
         cv::cvtColor(prev, prevGray, cv::COLOR_BGR2GRAY);
@@ -23,10 +31,11 @@ int main() {
     cv::goodFeaturesToTrack(prevGray, prevGoodFeatures, 500, 0.01, 10);
 //    cv::goodFeaturesToTrack(currentGray, currentGoodFeatures, 100, 0.01, 10);
     std::vector<double> depth; depth.reserve(prevGoodFeatures.size());
-    std::cout<<"initialize depth size: "<<prevGoodFeatures.size()<<std::endl;
+    std::cout<<"feature nums before process: "<<prevGoodFeatures.size()<<std::endl;
     std::vector<uchar> status;
     std::vector<float> err;
     cv::calcOpticalFlowPyrLK(prevGray, currentGray, prevGoodFeatures, currentGoodFeatures, status, err, cv::Size(21, 21), 1);
+    //assign same depth
     for(int i=0; i<prevGoodFeatures.size(); ++i){
 //        if(i%3 == 0) depth.push_back(2.0);
 //        if(i%3 == 1) depth.push_back(10.0);
@@ -55,7 +64,9 @@ int main() {
 //    RemovePointsThroughDepth(classes, groups, prevGoodFeatures, currentGoodFeatures, 3, 3, Vstatus);
     double a = 1.5;
     double b = 1.5;
-    ClassifyBasedOnXY(classes, a, b, groups, prevGoodFeatures, currentGoodFeatures, Vstatus);
+    int parts = 5;
+    bool useGlobalInformation = true;
+    ClassifyBasedOnXY(classes, a, b, groups, prevGoodFeatures, currentGoodFeatures, Vstatus, parts, useGlobalInformation);
     double length = 0;
     for(const auto & x: Vstatus){
         if(x) length++;
